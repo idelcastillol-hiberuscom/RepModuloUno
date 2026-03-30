@@ -20,11 +20,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const spotsLeft = details.max_participants - details.participants.length;
 
+
+        let participantsList = '';
+        if (details.participants.length > 0) {
+          participantsList = details.participants.map(email => `
+            <li class="participant-item">
+              <span class="participant-email">${email}</span>
+              <button class="delete-participant-btn" title="Remove participant" data-activity="${name}" data-email="${email}">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="10" cy="10" r="10" fill="#ffebee"/>
+                  <path d="M6 6l8 8M14 6l-8 8" stroke="#c62828" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </li>
+          `).join('');
+        } else {
+          participantsList = '<li class="participant-item"><em>No participants yet</em></li>';
+        }
+
         activityCard.innerHTML = `
           <h4>${name}</h4>
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+          <div class="participants-section">
+            <strong>Participants:</strong>
+            <ul class="participants-list">
+              ${participantsList}
+            </ul>
+          </div>
         `;
 
         activitiesList.appendChild(activityCard);
@@ -83,4 +107,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize app
   fetchActivities();
+  // Delegate click event for delete buttons
+  activitiesList.addEventListener("click", async (event) => {
+    const target = event.target.closest(".delete-participant-btn");
+    if (target) {
+      const activity = target.getAttribute("data-activity");
+      const email = target.getAttribute("data-email");
+      if (!activity || !email) return;
+
+      // TODO: Implement backend DELETE endpoint. For now, show alert.
+      // Uncomment and adjust when backend is ready:
+      /*
+      try {
+        const response = await fetch(`/activities/${encodeURIComponent(activity)}/signup?email=${encodeURIComponent(email)}`, {
+          method: "DELETE"
+        });
+        if (response.ok) {
+          fetchActivities();
+        } else {
+          const result = await response.json();
+          alert(result.detail || "Failed to remove participant.");
+        }
+      } catch (error) {
+        alert("Error removing participant.");
+      }
+      */
+      alert(`(Simulación) Eliminar a ${email} de ${activity}. Implementa el endpoint DELETE en el backend.`);
+    }
+  });
 });
